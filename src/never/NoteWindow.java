@@ -3,7 +3,6 @@ package never;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,27 +15,33 @@ import javax.swing.event.DocumentListener;
 
 public class NoteWindow {
     
-    private static final int C_NOTE_SIZE_VER = 200;
-    private static final int C_NOTE_SIZE_HOR = 100;
+    private static final int C_N_SIZE_VER = 200;
+    private static final int C_N_SIZE_HOR = 100;
 
-    private UUID _uuid;
+    private UUID _uuidUUID;
     
-    private JDialog _dialog;
-    private Note _note = new Note();
-    private JTextArea _textAreaNote = new JTextArea(_note.getContents());
-    private JScrollPane _scrollNote = new JScrollPane(_textAreaNote);
+    private JDialog _dDialog;
+    private Note _nNote = new Note();
+    private JTextArea _taNote = new JTextArea(_nNote.getContents());
+    private JScrollPane _spNote = new JScrollPane(_taNote);
     
-    private DocumentListener onTextAreaNoteUpdate = new DocumentListener() {
-        @Override
-        public void removeUpdate(DocumentEvent e) {
-        }
-        
-        @Override
-        public void insertUpdate(DocumentEvent e) {
-        }
-        
+    private DocumentListener dlNoteUpdateListener = new DocumentListener() {
         @Override
         public void changedUpdate(DocumentEvent e) {
+        }
+
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            updateContents();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            updateContents();
+        }
+        
+        void updateContents() {
+            _nNote.setContents(_taNote.getText());
         }
     };
     
@@ -45,24 +50,24 @@ public class NoteWindow {
     }
     
     private NoteWindow(UUID uuid, JDialog dialog) {
-        _uuid = uuid;
-        _dialog = dialog;
+        _uuidUUID = uuid;
+        _dDialog = dialog;
     }
     
     public void init() {
-        _dialog.setSize(C_NOTE_SIZE_HOR, C_NOTE_SIZE_VER);
-        _dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        _textAreaNote.setLineWrap(true);
-        _dialog.getContentPane().add(_scrollNote, null);
-        _dialog.setVisible(true);
-        _textAreaNote.getDocument().addDocumentListener(onTextAreaNoteUpdate);
+        _dDialog.setSize(C_N_SIZE_HOR, C_N_SIZE_VER);
+        _dDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        _taNote.setLineWrap(true);
+        _dDialog.getContentPane().add(_spNote, null);
+        _dDialog.setVisible(true);
+        _taNote.getDocument().addDocumentListener(dlNoteUpdateListener);
     }
     
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((_uuid == null) ? 0 : _uuid.hashCode());
+        result = prime * result + ((_uuidUUID == null) ? 0 : _uuidUUID.hashCode());
         return result;
     }
 
@@ -75,38 +80,42 @@ public class NoteWindow {
         if (getClass() != obj.getClass())
             return false;
         NoteWindow other = (NoteWindow) obj;
-        if (_uuid == null) {
-            if (other._uuid != null)
+        if (_uuidUUID == null) {
+            if (other._uuidUUID != null)
                 return false;
-        } else if (!_uuid.equals(other._uuid))
+        } else if (!_uuidUUID.equals(other._uuidUUID))
             return false;
         return true;
     }
 
     public JDialog getDialog() {
-        return _dialog;
+        return _dDialog;
     }
     
     public Note getNote() {
-        return _note;
+        return _nNote;
+    }
+    
+    public UUID getUUID() {
+        return _uuidUUID;
     }
     
     /*
      * NoteWindow Management
      */
     
-    private static final Set<NoteWindow> aNoteWindows = new HashSet<>();
+    public static final Set<NoteWindow> setnwNoteWindows = new HashSet<NoteWindow>();
 
     public static NoteWindow newNote() {
-        final NoteWindow noteWindow = new NoteWindow(new JDialog(NeverForget.c_frameMain, ""));
-        noteWindow.init();
-        noteWindow._dialog.addWindowListener(new WindowAdapter() {
+        final NoteWindow nw = new NoteWindow(new JDialog(NeverForget.c_fMain, ""));
+        nw.init();
+        nw._dDialog.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                aNoteWindows.remove(noteWindow);
+                setnwNoteWindows.remove(nw);
             }
         });
-        aNoteWindows.add(noteWindow);
-        return noteWindow;
+        setnwNoteWindows.add(nw);
+        return nw;
     }
 }

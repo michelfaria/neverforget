@@ -9,6 +9,7 @@ import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
@@ -16,29 +17,35 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
+import never.IO.NoteSaveStatus;
+
 public final class NeverForget {
 
     // Program Version
-    public static final String c_strVersion = "0.0.0";
+    public static final String C_STR_VERSION = "0.0.0";
+    
+    // Other constants
+    public static final File C_F_SAVE_DIR = new File(System.getProperty("user.home") + "/My Notes");
 
     // Tray Icon (GIF)
-    public static final Image c_trayImage;
+    public static final Image c_imgTrayImage;
     static {
         try {
             final InputStream is = NeverForget.class.getClassLoader().getResourceAsStream("NeverForget.gif");
-            c_trayImage = ImageIO.read(is);
+            c_imgTrayImage = ImageIO.read(is);
         } catch (Exception e) {
             throw new ExceptionInInitializerError(e);
         }
     }
 
     // Tray pop-up menu
-    public static PopupMenu c_popupMenu = null;
+    public static PopupMenu c_pmPopupMenu = null;
+    public static TrayIcon c_tiTrayIcon = null;
     
     // Main JFrame
-    public static final JFrame c_frameMain = new JFrame("NeverForget");
+    public static final JFrame c_fMain = new JFrame("NeverForget");
 
-    public static void main(String[] args) {
+    public static void main(String[] args) {  
         // Check for graphical environment
         if (GraphicsEnvironment.isHeadless()) {
             System.err.println("Sorry, NeverForget needs a graphical environment to run. Exiting.");
@@ -62,28 +69,30 @@ public final class NeverForget {
         System.out.println("NeverForget is now running.");
 
         // Make system tray icon
-        final SystemTray systemTray = SystemTray.getSystemTray();
-        final TrayIcon trayIcon = new TrayIcon(c_trayImage);
+        final SystemTray stSystemTray = SystemTray.getSystemTray();
+        c_tiTrayIcon = new TrayIcon(c_imgTrayImage);
 
-        c_popupMenu = new PopupMenu();
+        c_pmPopupMenu = new PopupMenu();
 
         // Create Pop-up menu components
-        final MenuItem newNoteItem = newNoteMenuItem();
-        final MenuItem aboutItem = aboutTrayMenuItem();
-        final MenuItem exitItem = quitTrayMenuItem();
+        final MenuItem miNewNote = newNoteMI();
+        final MenuItem miSave = saveTrayMI();
+        final MenuItem miAbout = aboutTrayMI();
+        final MenuItem miExit = quitTrayMI();
 
         // Add components to Pop-up menu
-        c_popupMenu.add(newNoteItem);
-        c_popupMenu.addSeparator();
-        c_popupMenu.add(aboutItem);
-        c_popupMenu.add(exitItem);
+        c_pmPopupMenu.add(miNewNote);
+        c_pmPopupMenu.add(miSave);
+        c_pmPopupMenu.addSeparator();
+        c_pmPopupMenu.add(miAbout);
+        c_pmPopupMenu.add(miExit);
 
         // Attribute the Pop-up menu to the tray icon
-        trayIcon.setPopupMenu(c_popupMenu);
+        c_tiTrayIcon.setPopupMenu(c_pmPopupMenu);
 
         // Put tray icon in the system tray
         try {
-            systemTray.add(trayIcon);
+            stSystemTray.add(c_tiTrayIcon);
         } catch (AWTException e) {
             JOptionPane.showMessageDialog(null, "NeverForget failed to load. Error: " + e.getMessage(), "Error",
                     JOptionPane.ERROR_MESSAGE);
@@ -91,39 +100,62 @@ public final class NeverForget {
         }
     }
 
-    private static MenuItem newNoteMenuItem() {
-        final MenuItem menuItem = new MenuItem("New Note");
-        menuItem.addActionListener(new ActionListener() {
+    private static MenuItem newNoteMI() {
+        final MenuItem mi = new MenuItem("New Note");
+        mi.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 NoteWindow.newNote();
             }
         });
-        return menuItem;
+        return mi;
     }
 
-    public static MenuItem aboutTrayMenuItem() {
-        final MenuItem menuItem = new MenuItem("About");
-        menuItem.addActionListener(new ActionListener() {
+    public static MenuItem aboutTrayMI() {
+        final MenuItem mi = new MenuItem("About");
+        mi.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(null,
-                        "NeverForget " + c_strVersion + " by Michel (https://github.com/michelfaria)", "About",
+                        "NeverForget " + C_STR_VERSION + " by Michel (https://github.com/michelfaria)", "About",
                         JOptionPane.INFORMATION_MESSAGE);
             }
         });
-        return menuItem;
+        return mi;
     }
 
-    public static MenuItem quitTrayMenuItem() {
-        final MenuItem menuItem = new MenuItem("Quit");
-        menuItem.addActionListener(new ActionListener() {
+    public static MenuItem quitTrayMI() {
+        final MenuItem mi = new MenuItem("Quit");
+        mi.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 exit();
             }
         });
-        return menuItem;
+        return mi;
+    }
+    
+    public static MenuItem saveTrayMI() {
+        final MenuItem mi = new MenuItem("Save");
+        mi.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                save();
+            }
+        });
+        return mi;
+    }
+    
+    public static void save() {
+        NoteSaveStatus nssStatus = IO.saveAllNotes();
+        if (nssStatus.equals(NoteSaveStatus.FAIL_NO_SAVE_DIR)) {
+            c_tiTrayIcon.displayMessage("Save Fail", "Your notes could not be saved because an error occurred while creating the Notes folder", TrayIcon.MessageType.ERROR);
+        } else if (nssStatus.equals(NoteSaveStatus.FAIL_WRITE_ERROR)) {
+            c_tiTrayIcon.displayMessage("Save Fail", "Your notes could not be saved because an error occurred while writing them to disk.", TrayIcon.MessageType.ERROR);
+        } else {
+            assert nssStatus.equals(NoteSaveStatus.SUCCESS);
+            c_tiTrayIcon.displayMessage("Saved", "Your notes were saved.", TrayIcon.MessageType.INFO);
+        }
     }
     
     public static void exit() {
