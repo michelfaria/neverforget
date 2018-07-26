@@ -47,14 +47,22 @@ public final class IO {
                 return NoteSaveStatus.FAIL_NO_SAVE_DIR;
             }
             for (final NoteWindow nw : NoteWindow.setnwNoteWindows) {
+                FileOutputStream fos = null;
                 try {
-                    final File fSaveFile = new File(
-                            NeverForget.C_F_SAVE_DIR.getCanonicalPath() + "/" + nw.getUUID().toString());
-                    final FileOutputStream fos = new FileOutputStream(fSaveFile);
+                    final File fSaveFile = new File(NeverForget.C_F_SAVE_DIR.getCanonicalPath() + "/" + nw.getUUID().toString());
+                    fos = new FileOutputStream(fSaveFile);
                     fos.write(nw.getNote().getContents().getBytes());
                 } catch (Exception e) {
                     leSaveErrors.add(e);
                     continue;
+                } finally {
+                    if (fos != null) {
+                        try {
+                            fos.close();
+                        } catch (IOException e) {
+                            leSaveErrors.add(e);
+                        }
+                    }
                 }
             }
             return leSaveErrors.size() > 0 ? NoteSaveStatus.FAIL_WRITE_ERROR : NoteSaveStatus.SUCCESS;
