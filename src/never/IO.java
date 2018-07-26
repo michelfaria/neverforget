@@ -1,20 +1,13 @@
 package never;
 
-import java.awt.Image;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.imageio.ImageIO;
-
 public final class IO {
-
-    public static Image readImageFromFile(File file) throws IOException {
-        return ImageIO.read(file);
-    }
-
+    
     public static byte[] readFile(File file) throws IOException {
         ByteArrayOutputStream bos = null;
         InputStream is = null;

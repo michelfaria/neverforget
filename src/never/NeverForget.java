@@ -9,9 +9,9 @@ import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.net.URL;
+import java.io.InputStream;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
@@ -25,9 +25,8 @@ public final class NeverForget {
     public static final Image c_trayImage;
     static {
         try {
-            final URL urlResource = NeverForget.class.getClassLoader().getResource("NeverForget.gif");
-            final File file = new File(urlResource.toURI());
-            c_trayImage = IO.readImageFromFile(file);
+            final InputStream is = NeverForget.class.getClassLoader().getResourceAsStream("NeverForget.gif");
+            c_trayImage = ImageIO.read(is);
         } catch (Exception e) {
             throw new ExceptionInInitializerError(e);
         }
