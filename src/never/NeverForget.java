@@ -13,8 +13,11 @@ import java.io.File;
 import java.net.URL;
 
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 
 public class NeverForget {
+
+    public static final String c_strVersion = "0.0.0";
 
     public static final Image c_trayImage;
     static {
@@ -36,6 +39,13 @@ public class NeverForget {
             return;
         }
 
+        // Make the Swing UI look good
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            System.err.println("Could not change look and feel, resorting to default look: " + e);
+        }
+
         // Check support for System Tray
         if (!SystemTray.isSupported()) {
             JOptionPane.showMessageDialog(null, "Sorry, NeverForget needs a system tray to work. Exiting.", "Error",
@@ -52,8 +62,8 @@ public class NeverForget {
         c_popupMenu = new PopupMenu();
 
         // Create Pop-up menu components
-        MenuItem aboutItem = new MenuItem("About");
-        MenuItem exitItem = exitItem();
+        MenuItem aboutItem = aboutTrayMenuItem();
+        MenuItem exitItem = quitTrayMenuItem();
 
         // Add components to Pop-up menu
         c_popupMenu.add(aboutItem);
@@ -71,8 +81,21 @@ public class NeverForget {
             return;
         }
     }
-    
-    public static MenuItem exitItem() {
+
+    public static MenuItem aboutTrayMenuItem() {
+        final MenuItem menuItem = new MenuItem("About");
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(null,
+                        "NeverForget " + c_strVersion + " by Michel (https://github.com/michelfaria)", "About",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+        return menuItem;
+    }
+
+    public static MenuItem quitTrayMenuItem() {
         final MenuItem menuItem = new MenuItem("Quit");
         menuItem.addActionListener(new ActionListener() {
             @Override
