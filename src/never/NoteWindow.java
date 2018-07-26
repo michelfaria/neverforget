@@ -1,24 +1,41 @@
 package never;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 public class NoteWindow {
-    private static int uid = 0; // Window uniqueness
+    
+    private static final int C_NOTE_SIZE_VER = 200;
+    private static final int C_NOTE_SIZE_HOR = 100;
+    
+    private static int c_uid = 0; // Window uniqueness
 
-    private final int m_uid = uid;
+    private final int _uid = c_uid;
     {
-        uid++;
+        c_uid++;
     }
-    private JFrame m_jframe;
-    private Note m_note = new Note();
+    private JDialog _dialog;
+    private Note _note = new Note();
 
-    public NoteWindow(JFrame jframe) {
-        m_jframe = jframe;
+    private NoteWindow(JDialog dialog) {
+        _dialog = dialog;
+    }
+    
+    public void setDefaults() {
+        _dialog.setSize(C_NOTE_SIZE_HOR, C_NOTE_SIZE_VER);
+        _dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        
+        _dialog.setVisible(true);
     }
 
     @Override
     public int hashCode() {
-        return uid;
+        return c_uid;
     }
 
     @Override
@@ -30,16 +47,35 @@ public class NoteWindow {
         if (getClass() != obj.getClass())
             return false;
         NoteWindow other = (NoteWindow) obj;
-        if (m_uid != other.m_uid)
+        if (_uid != other._uid)
             return false;
         return true;
     }
     
-    public JFrame getJFrame() {
-        return m_jframe;
+    public JDialog getDialog() {
+        return _dialog;
     }
     
     public Note getNote() {
-        return m_note;
+        return _note;
+    }
+    
+    /*
+     * NoteWindow Management
+     */
+    
+    private static final Set<NoteWindow> aNoteWindows = new HashSet<>();
+
+    public static NoteWindow newNote() {
+        final NoteWindow noteWindow = new NoteWindow(new JDialog(NeverForget.c_frameMain, "Note "));
+        aNoteWindows.add(noteWindow);
+        noteWindow.setDefaults();
+        noteWindow._dialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                aNoteWindows.remove(noteWindow);
+            }
+        });
+        return noteWindow;
     }
 }

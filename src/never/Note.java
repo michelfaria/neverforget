@@ -1,32 +1,32 @@
 package never;
 
 public class Note {
-    private String m_title;
-    private String m_contents;
+    private String _title;
+    private String _contents;
 
     public Note() {
-        m_title = "";
-        m_contents = "";
+        _title = "";
+        _contents = "";
     }
     
     public Note(String title, String contents) {
-        m_title = title;
-        m_contents = contents;
+        _title = title;
+        _contents = contents;
     }
 
     public String getTitle() {
-        return m_title;
+        return _title;
     }
 
     public void setTitle(String title) {
-        m_title = title;
+        _title = title;
     }
 
     public String getContents() {
-        return m_contents;
+        return _contents;
     }
 
     public void setContents(String contents) {
-        m_contents = contents;
+        _contents = contents;
     }
 }

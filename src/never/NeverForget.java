@@ -37,7 +37,7 @@ public final class NeverForget {
     public static PopupMenu c_popupMenu = null;
     
     // Main JFrame
-    public static final JFrame jframeMain = new JFrame("NeverForget");
+    public static final JFrame c_frameMain = new JFrame("NeverForget");
 
     public static void main(String[] args) {
         // Check for graphical environment
@@ -97,7 +97,7 @@ public final class NeverForget {
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                NoteWindows.newNote();
+                NoteWindow.newNote();
             }
         });
         return menuItem;
