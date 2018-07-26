@@ -7,6 +7,8 @@ import java.util.Set;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 public class NoteWindow {
     
@@ -21,6 +23,8 @@ public class NoteWindow {
     }
     private JDialog _dialog;
     private Note _note = new Note();
+    private JTextArea _textAreaNote = new JTextArea(_note.getContents());
+    private JScrollPane _scrollNote = new JScrollPane(_textAreaNote);
 
     private NoteWindow(JDialog dialog) {
         _dialog = dialog;
@@ -29,7 +33,9 @@ public class NoteWindow {
     public void setDefaults() {
         _dialog.setSize(C_NOTE_SIZE_HOR, C_NOTE_SIZE_VER);
         _dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        
+        _dialog.setTitle(_note.getTitle());
+        _textAreaNote.setLineWrap(true);
+        _dialog.getContentPane().add(_scrollNote, null);
         _dialog.setVisible(true);
     }
 
@@ -67,8 +73,7 @@ public class NoteWindow {
     private static final Set<NoteWindow> aNoteWindows = new HashSet<>();
 
     public static NoteWindow newNote() {
-        final NoteWindow noteWindow = new NoteWindow(new JDialog(NeverForget.c_frameMain, "Note "));
-        aNoteWindows.add(noteWindow);
+        final NoteWindow noteWindow = new NoteWindow(new JDialog(NeverForget.c_frameMain, ""));
         noteWindow.setDefaults();
         noteWindow._dialog.addWindowListener(new WindowAdapter() {
             @Override
@@ -76,6 +81,7 @@ public class NoteWindow {
                 aNoteWindows.remove(noteWindow);
             }
         });
+        aNoteWindows.add(noteWindow);
         return noteWindow;
     }
 }
