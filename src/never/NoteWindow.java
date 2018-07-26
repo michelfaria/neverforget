@@ -33,7 +33,6 @@ public class NoteWindow {
     public void setDefaults() {
         _dialog.setSize(C_NOTE_SIZE_HOR, C_NOTE_SIZE_VER);
         _dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        _dialog.setTitle(_note.getTitle());
         _textAreaNote.setLineWrap(true);
         _dialog.getContentPane().add(_scrollNote, null);
         _dialog.setVisible(true);
