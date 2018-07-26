@@ -12,13 +12,16 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.URL;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
-public class NeverForget {
+public final class NeverForget {
 
+    // Program Version
     public static final String c_strVersion = "0.0.0";
 
+    // Tray Icon (GIF)
     public static final Image c_trayImage;
     static {
         try {
@@ -30,7 +33,11 @@ public class NeverForget {
         }
     }
 
+    // Tray pop-up menu
     public static PopupMenu c_popupMenu = null;
+    
+    // Main JFrame
+    public static final JFrame jframeMain = new JFrame("NeverForget");
 
     public static void main(String[] args) {
         // Check for graphical environment
@@ -62,10 +69,13 @@ public class NeverForget {
         c_popupMenu = new PopupMenu();
 
         // Create Pop-up menu components
+        final MenuItem newNoteItem = newNoteMenuItem();
         final MenuItem aboutItem = aboutTrayMenuItem();
         final MenuItem exitItem = quitTrayMenuItem();
 
         // Add components to Pop-up menu
+        c_popupMenu.add(newNoteItem);
+        c_popupMenu.addSeparator();
         c_popupMenu.add(aboutItem);
         c_popupMenu.add(exitItem);
 
@@ -80,6 +90,17 @@ public class NeverForget {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
+    }
+
+    private static MenuItem newNoteMenuItem() {
+        final MenuItem menuItem = new MenuItem("New Note");
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                NoteWindows.newNote();
+            }
+        });
+        return menuItem;
     }
 
     public static MenuItem aboutTrayMenuItem() {
@@ -100,9 +121,16 @@ public class NeverForget {
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.exit(0);
+                exit();
             }
         });
         return menuItem;
     }
+    
+    public static void exit() {
+        System.out.println("NeverForget is now exiting. Thank you for using NeverForget!");
+        System.exit(0);
+    }
+    
+    private NeverForget() {}
 }

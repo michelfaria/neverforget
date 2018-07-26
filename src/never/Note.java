@@ -1,27 +1,32 @@
 package never;
 
 public class Note {
-    private String title;
-    private String contents;
+    private String m_title;
+    private String m_contents;
 
+    public Note() {
+        m_title = "";
+        m_contents = "";
+    }
+    
     public Note(String title, String contents) {
-        this.title = title;
-        this.contents = contents;
+        m_title = title;
+        m_contents = contents;
     }
 
     public String getTitle() {
-        return title;
+        return m_title;
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        m_title = title;
     }
 
     public String getContents() {
-        return contents;
+        return m_contents;
     }
 
     public void setContents(String contents) {
-        this.contents = contents;
+        m_contents = contents;
     }
 }
