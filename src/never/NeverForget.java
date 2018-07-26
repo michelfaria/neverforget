@@ -62,8 +62,8 @@ public class NeverForget {
         c_popupMenu = new PopupMenu();
 
         // Create Pop-up menu components
-        MenuItem aboutItem = aboutTrayMenuItem();
-        MenuItem exitItem = quitTrayMenuItem();
+        final MenuItem aboutItem = aboutTrayMenuItem();
+        final MenuItem exitItem = quitTrayMenuItem();
 
         // Add components to Pop-up menu
         c_popupMenu.add(aboutItem);
