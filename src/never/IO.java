@@ -7,8 +7,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public final class IO {
 
@@ -41,6 +43,9 @@ public final class IO {
             throw new IllegalStateException("Note set is null");
         }
 
+        if (leSaveErrors == null) {
+            leSaveErrors = new ArrayList<Exception>();
+        }
         synchronized (leSaveErrors) {
             leSaveErrors = new ArrayList<Exception>();
             final CreateSaveDirStatus iResult = createSaveDirIfNotExists();
@@ -70,6 +75,65 @@ public final class IO {
                 }
             }
             return leSaveErrors.size() > 0 ? NoteSaveStatus.FAIL_WRITE_ERROR : NoteSaveStatus.SUCCESS;
+        }
+    }
+
+    public static List<Exception> leLoadNotesErrors = new ArrayList<Exception>();
+
+    /**
+     * Load errors are temporarily written to IO.leLoadNotesErrors.
+     */
+    public static List<NoteWindow> loadSavedNotes() {
+        if (leLoadNotesErrors == null) {
+            leLoadNotesErrors = new ArrayList<Exception>();
+        }
+
+        synchronized (leLoadNotesErrors) {
+            leLoadNotesErrors = new ArrayList<Exception>();
+
+            if (!NeverForget.C_F_SAVE_DIR.exists()) {
+                return new ArrayList<NoteWindow>();
+            }
+
+            final File[] aFiles = NeverForget.C_F_SAVE_DIR.listFiles();
+            if (aFiles == null) {
+                throw new RuntimeException("Save location is not a directory.");
+            }
+
+            final List<NoteWindow> nwlList = new ArrayList<NoteWindow>();
+            for (final File file : aFiles) {
+                try {
+                    final byte[] baContents = readFile(file);
+                    final String strContents = new String(baContents, StandardCharsets.UTF_8);
+                    final String[] astrContents = strContents.split(",");
+                    final NoteWindow nwLoaded = new NoteWindow();
+                    // Load UUID
+                    try {
+                        nwLoaded.setUUID(UUID.fromString(file.getName()));
+                    } catch (IllegalArgumentException e) {
+                        leLoadNotesErrors.add(e);
+                        continue;
+                    }
+                    // Load Positions and Widths
+                    try {
+                        final int iX = Integer.parseInt(astrContents[0]);
+                        final int iY = Integer.parseInt(astrContents[1]);
+                        final int iWidth = Integer.parseInt(astrContents[2]);
+                        final int iHeight = Integer.parseInt(astrContents[3]);
+                        nwLoaded.setDlgDialogBounds(iX, iY, iWidth, iHeight);
+                    } catch (NumberFormatException e) {
+                        leLoadNotesErrors.add(e);
+                        continue;
+                    }
+                    // Load contents
+                    final String strNoteContents = astrContents[4];
+                    nwLoaded.setnNoteContents(strNoteContents);
+                    nwlList.add(nwLoaded);
+                } catch (IOException e) {
+                    leLoadNotesErrors.add(e);
+                }
+            }
+            return nwlList;
         }
     }
 

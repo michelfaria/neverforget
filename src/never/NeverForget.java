@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.InputStream;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -77,12 +78,14 @@ public final class NeverForget {
         // Create Pop-up menu components
         final MenuItem miNewNote = newNoteMI();
         final MenuItem miSave = saveTrayMI();
+        final MenuItem miLoad = loadTrayMI();
         final MenuItem miAbout = aboutTrayMI();
         final MenuItem miExit = quitTrayMI();
 
         // Add components to Pop-up menu
         c_popmPopupMenu.add(miNewNote);
         c_popmPopupMenu.add(miSave);
+        c_popmPopupMenu.add(miLoad);
         c_popmPopupMenu.addSeparator();
         c_popmPopupMenu.add(miAbout);
         c_popmPopupMenu.add(miExit);
@@ -98,6 +101,8 @@ public final class NeverForget {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
+        
+        load();
     }
 
     private static MenuItem newNoteMI() {
@@ -105,7 +110,7 @@ public final class NeverForget {
         mi.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                NoteWindow.newNote();
+                new NoteWindow().init();
             }
         });
         return mi;
@@ -145,6 +150,17 @@ public final class NeverForget {
         });
         return mi;
     }
+    
+    public static MenuItem loadTrayMI() {
+        final MenuItem mi = new MenuItem("Load");
+        mi.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                load();
+            }
+        });
+        return mi;
+    }
 
     public static void save() {
         synchronized (IO.leSaveErrors) {
@@ -163,6 +179,18 @@ public final class NeverForget {
             } else {
                 assert nssStatus.equals(NoteSaveStatus.SUCCESS);
                 c_tricTrayIcon.displayMessage("Saved", "Your notes were saved.", TrayIcon.MessageType.INFO);
+            }
+        }
+    }
+    
+    public static void load() {
+        synchronized (IO.leLoadNotesErrors) {
+            List<NoteWindow> lnwNotes = IO.loadSavedNotes();
+            if (IO.leLoadNotesErrors.size() > 0) {
+                c_tricTrayIcon.displayMessage("Load Fail", "One or more notes failed to load.", TrayIcon.MessageType.ERROR);
+            }
+            for(NoteWindow nw : lnwNotes) {
+                nw.init();
             }
         }
     }

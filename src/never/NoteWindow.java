@@ -15,6 +15,8 @@ import javax.swing.event.DocumentListener;
 
 public class NoteWindow {
 
+    public static final Set<NoteWindow> setnwinNoteWindows = new HashSet<NoteWindow>();
+    
     public static final int C_I_SIZE_VER = 200;
     public static final int C_I_SIZE_HOR = 300;
     public static final int C_I_START_POS_X = 200;
@@ -46,24 +48,36 @@ public class NoteWindow {
             _nNote.setContents(_txtaNote.getText());
         }
     };
-
-    private NoteWindow(JDialog dialog) {
+    
+    public NoteWindow() {
+        this(new JDialog(NeverForget.c_frmMain, ""));
+    }
+    
+    public NoteWindow(JDialog dialog) {
         this(UUID.randomUUID(), dialog);
     }
 
-    private NoteWindow(UUID uuidUUID, JDialog dlgDialog) {
+    public NoteWindow(UUID uuidUUID, JDialog dlgDialog) {
         _uuidUUID = uuidUUID;
         _dlgDialog = dlgDialog;
+        _dlgDialog.setLocation(C_I_START_POS_X, C_I_START_POS_Y);
     }
-
+    
     public void init() {
+        _dlgDialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                setnwinNoteWindows.remove(NoteWindow.this);
+            }
+        });
+        setnwinNoteWindows.add(this);
+        
         _dlgDialog.setSize(C_I_SIZE_HOR, C_I_SIZE_VER);
         _dlgDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         _txtaNote.setLineWrap(true);
         _dlgDialog.getContentPane().add(_scrpnlNote, null);
         _dlgDialog.setVisible(true);
         _txtaNote.getDocument().addDocumentListener(dlNoteUpdateListener);
-        _dlgDialog.setLocation(C_I_START_POS_X, C_I_START_POS_Y);
     }
 
     @Override
@@ -102,11 +116,24 @@ public class NoteWindow {
     public UUID getUUID() {
         return _uuidUUID;
     }
+    
+    public void setUUID(UUID uuidUUID) {
+        _uuidUUID = uuidUUID;
+    }
 
     public int getPosX() {
         return _dlgDialog.getX();
     }
 
+    public void setDlgDialogBounds(int iX, int iY, int iWidth, int iHeight) {
+        _dlgDialog.setBounds(iX, iY, iWidth, iHeight);
+    }
+    
+    public void setnNoteContents(String strContent) {
+        _nNote.setContents(strContent);
+        _txtaNote.setText(strContent);
+    }
+    
     public int getPosY() {
         return _dlgDialog.getY();
     }
@@ -117,24 +144,5 @@ public class NoteWindow {
 
     public int getHeight() {
         return _dlgDialog.getHeight();
-    }
-
-    /*
-     * NoteWindow Management
-     */
-
-    public static final Set<NoteWindow> setnwinNoteWindows = new HashSet<NoteWindow>();
-
-    public static NoteWindow newNote() {
-        final NoteWindow nwin = new NoteWindow(new JDialog(NeverForget.c_frmMain, ""));
-        nwin.init();
-        nwin._dlgDialog.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                setnwinNoteWindows.remove(nwin);
-            }
-        });
-        setnwinNoteWindows.add(nwin);
-        return nwin;
     }
 }
