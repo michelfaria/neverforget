@@ -39,11 +39,11 @@ public final class NeverForget {
     }
 
     // Tray pop-up menu
-    public static PopupMenu c_pmPopupMenu = null;
-    public static TrayIcon c_tiTrayIcon = null;
+    public static PopupMenu c_popmPopupMenu = null;
+    public static TrayIcon c_tricTrayIcon = null;
     
     // Main JFrame
-    public static final JFrame c_fMain = new JFrame("NeverForget");
+    public static final JFrame c_frmMain = new JFrame("NeverForget");
 
     public static void main(String[] args) {  
         // Check for graphical environment
@@ -70,9 +70,9 @@ public final class NeverForget {
 
         // Make system tray icon
         final SystemTray stSystemTray = SystemTray.getSystemTray();
-        c_tiTrayIcon = new TrayIcon(c_imgTrayImage);
+        c_tricTrayIcon = new TrayIcon(c_imgTrayImage);
 
-        c_pmPopupMenu = new PopupMenu();
+        c_popmPopupMenu = new PopupMenu();
 
         // Create Pop-up menu components
         final MenuItem miNewNote = newNoteMI();
@@ -81,18 +81,18 @@ public final class NeverForget {
         final MenuItem miExit = quitTrayMI();
 
         // Add components to Pop-up menu
-        c_pmPopupMenu.add(miNewNote);
-        c_pmPopupMenu.add(miSave);
-        c_pmPopupMenu.addSeparator();
-        c_pmPopupMenu.add(miAbout);
-        c_pmPopupMenu.add(miExit);
+        c_popmPopupMenu.add(miNewNote);
+        c_popmPopupMenu.add(miSave);
+        c_popmPopupMenu.addSeparator();
+        c_popmPopupMenu.add(miAbout);
+        c_popmPopupMenu.add(miExit);
 
         // Attribute the Pop-up menu to the tray icon
-        c_tiTrayIcon.setPopupMenu(c_pmPopupMenu);
+        c_tricTrayIcon.setPopupMenu(c_popmPopupMenu);
 
         // Put tray icon in the system tray
         try {
-            stSystemTray.add(c_tiTrayIcon);
+            stSystemTray.add(c_tricTrayIcon);
         } catch (AWTException e) {
             JOptionPane.showMessageDialog(null, "NeverForget failed to load. Error: " + e.getMessage(), "Error",
                     JOptionPane.ERROR_MESSAGE);
@@ -149,12 +149,12 @@ public final class NeverForget {
     public static void save() {
         NoteSaveStatus nssStatus = IO.saveAllNotes();
         if (nssStatus.equals(NoteSaveStatus.FAIL_NO_SAVE_DIR)) {
-            c_tiTrayIcon.displayMessage("Save Fail", "Your notes could not be saved because an error occurred while creating the Notes folder", TrayIcon.MessageType.ERROR);
+            c_tricTrayIcon.displayMessage("Save Fail", "Your notes could not be saved because an error occurred while creating the Notes folder", TrayIcon.MessageType.ERROR);
         } else if (nssStatus.equals(NoteSaveStatus.FAIL_WRITE_ERROR)) {
-            c_tiTrayIcon.displayMessage("Save Fail", "Your notes could not be saved because an error occurred while writing them to disk.", TrayIcon.MessageType.ERROR);
+            c_tricTrayIcon.displayMessage("Save Fail", "Your notes could not be saved because an error occurred while writing them to disk.", TrayIcon.MessageType.ERROR);
         } else {
             assert nssStatus.equals(NoteSaveStatus.SUCCESS);
-            c_tiTrayIcon.displayMessage("Saved", "Your notes were saved.", TrayIcon.MessageType.INFO);
+            c_tricTrayIcon.displayMessage("Saved", "Your notes were saved.", TrayIcon.MessageType.INFO);
         }
     }
     

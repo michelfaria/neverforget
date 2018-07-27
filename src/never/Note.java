@@ -1,21 +1,21 @@
 package never;
 
 public class Note {
-    private String _contents;
+    private String _strContents;
 
     public Note() {
-        _contents = "";
+        _strContents = "";
     }
     
     public Note(String contents) {
-        _contents = contents;
+        _strContents = contents;
     }
 
     public String getContents() {
-        return _contents;
+        return _strContents;
     }
 
     public void setContents(String contents) {
-        _contents = contents;
+        _strContents = contents;
     }
 }

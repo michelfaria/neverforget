@@ -36,7 +36,7 @@ public final class IO {
      * Write errors saved temporarily to IO.leSaveErrors
      */
     public static NoteSaveStatus saveAllNotes() {
-        if (NoteWindow.setnwNoteWindows == null) {
+        if (NoteWindow.setnwinNoteWindows == null) {
             throw new IllegalStateException("Note set is null");
         }
 
@@ -46,7 +46,7 @@ public final class IO {
             if (iResult.equals(CreateSaveDirStatus.CREATION_FAIL)) {
                 return NoteSaveStatus.FAIL_NO_SAVE_DIR;
             }
-            for (final NoteWindow nw : NoteWindow.setnwNoteWindows) {
+            for (final NoteWindow nw : NoteWindow.setnwinNoteWindows) {
                 FileOutputStream fos = null;
                 try {
                     final File fSaveFile = new File(NeverForget.C_F_SAVE_DIR.getCanonicalPath() + "/" + nw.getUUID().toString());
