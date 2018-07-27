@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +52,9 @@ public final class IO {
                 return NoteSaveStatus.FAIL_NO_SAVE_DIR;
             }
             for (final NoteWindow nw : NoteWindow.setnwinNoteWindows) {
+                if (!nw.isContentsUnsaved()) {
+                    continue;
+                }
                 FileOutputStream fous = null;
                 try {
                     final File fSaveFile = new File(
@@ -61,6 +63,8 @@ public final class IO {
                     final String strData = String.format("%d,%d,%d,%d,%s", nw.getPosX(), nw.getPosY(), nw.getWidth(),
                             nw.getHeight(), nw.getNote().getContents());
                     fous.write(strData.getBytes());
+                    nw.setContentsUnsaved(false);
+                    System.out.println("Saved");
                 } catch (Exception e) {
                     leSaveErrors.add(e);
                     continue;
@@ -128,6 +132,7 @@ public final class IO {
                     // Load contents
                     final String strNoteContents = astrContents[4];
                     nwLoaded.setnNoteContents(strNoteContents);
+                    nwLoaded.setContentsUnsaved(false);
                     nwlList.add(nwLoaded);
                 } catch (IOException e) {
                     leLoadNotesErrors.add(e);

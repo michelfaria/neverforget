@@ -46,6 +46,8 @@ public final class NeverForget {
     // Main JFrame
     public static final JFrame c_frmMain = new JFrame("NeverForget");
 
+    public static Thread c_thdSave = null;
+
     public static void main(String[] args) {
         // Check for graphical environment
         if (GraphicsEnvironment.isHeadless()) {
@@ -101,8 +103,9 @@ public final class NeverForget {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         load();
+        beginSaveJob();
     }
 
     private static MenuItem newNoteMI() {
@@ -150,7 +153,7 @@ public final class NeverForget {
         });
         return mi;
     }
-    
+
     public static MenuItem loadTrayMI() {
         final MenuItem mi = new MenuItem("Load");
         mi.addActionListener(new ActionListener() {
@@ -163,6 +166,10 @@ public final class NeverForget {
     }
 
     public static void save() {
+        save(true);
+    }
+    
+    public static void save(boolean bShowSuccessMessage) {
         synchronized (IO.leSaveErrors) {
             NoteSaveStatus nssStatus = IO.saveAllNotes();
             if (nssStatus.equals(NoteSaveStatus.FAIL_NO_SAVE_DIR)) {
@@ -178,18 +185,21 @@ public final class NeverForget {
                 }
             } else {
                 assert nssStatus.equals(NoteSaveStatus.SUCCESS);
-                c_tricTrayIcon.displayMessage("Saved", "Your notes were saved.", TrayIcon.MessageType.INFO);
+                if (bShowSuccessMessage) {
+                    c_tricTrayIcon.displayMessage("Saved", "Your notes were saved.", TrayIcon.MessageType.INFO);
+                }
             }
         }
     }
-    
+
     public static void load() {
         synchronized (IO.leLoadNotesErrors) {
             List<NoteWindow> lnwNotes = IO.loadSavedNotes();
             if (IO.leLoadNotesErrors.size() > 0) {
-                c_tricTrayIcon.displayMessage("Load Fail", "One or more notes failed to load.", TrayIcon.MessageType.ERROR);
+                c_tricTrayIcon.displayMessage("Load Fail", "One or more notes failed to load.",
+                        TrayIcon.MessageType.ERROR);
             }
-            for(NoteWindow nw : lnwNotes) {
+            for (NoteWindow nw : lnwNotes) {
                 nw.init();
             }
         }
@@ -198,6 +208,27 @@ public final class NeverForget {
     public static void exit() {
         System.out.println("NeverForget is now exiting. Thank you for using NeverForget!");
         System.exit(0);
+    }
+
+    public static boolean beginSaveJob() {
+        if (c_thdSave != null) {
+            return false;
+        }
+        c_thdSave = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(10 * 1000);
+                    } catch (InterruptedException e) {
+                        System.err.println("Autosave thread interrupted");
+                    }
+                    save(false);
+                }
+            }
+        });
+        c_thdSave.start();
+        return true;
     }
 
     private NeverForget() {

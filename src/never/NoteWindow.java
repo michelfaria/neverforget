@@ -28,6 +28,7 @@ public class NoteWindow {
     private Note _nNote = new Note();
     private JTextArea _txtaNote = new JTextArea(_nNote.getContents());
     private JScrollPane _scrpnlNote = new JScrollPane(_txtaNote);
+    private boolean _bContentsUnsaved = true;
 
     private DocumentListener dlNoteUpdateListener = new DocumentListener() {
         @Override
@@ -46,6 +47,7 @@ public class NoteWindow {
 
         void updateContents() {
             _nNote.setContents(_txtaNote.getText());
+            _bContentsUnsaved = true;
         }
     };
     
@@ -145,4 +147,14 @@ public class NoteWindow {
     public int getHeight() {
         return _dlgDialog.getHeight();
     }
+
+    public boolean isContentsUnsaved() {
+        return _bContentsUnsaved;
+    }
+
+    public void setContentsUnsaved(boolean bContentsUnsaved) {
+        _bContentsUnsaved = bContentsUnsaved;
+    }
+    
+    
 }
