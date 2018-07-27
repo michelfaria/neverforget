@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public final class IO {
     }
 
     public static List<Exception> leSaveErrors = new ArrayList<Exception>();
-    
+
     /**
      * Write errors saved temporarily to IO.leSaveErrors
      */
@@ -47,18 +48,21 @@ public final class IO {
                 return NoteSaveStatus.FAIL_NO_SAVE_DIR;
             }
             for (final NoteWindow nw : NoteWindow.setnwinNoteWindows) {
-                FileOutputStream fos = null;
+                FileOutputStream fous = null;
                 try {
-                    final File fSaveFile = new File(NeverForget.C_F_SAVE_DIR.getCanonicalPath() + "/" + nw.getUUID().toString());
-                    fos = new FileOutputStream(fSaveFile);
-                    fos.write(nw.getNote().getContents().getBytes());
+                    final File fSaveFile = new File(
+                            NeverForget.C_F_SAVE_DIR.getCanonicalPath() + "/" + nw.getUUID().toString());
+                    fous = new FileOutputStream(fSaveFile);
+                    final String strData = String.format("%d,%d,%d,%d,%s", nw.getPosX(), nw.getPosY(), nw.getWidth(),
+                            nw.getHeight(), nw.getNote().getContents());
+                    fous.write(strData.getBytes());
                 } catch (Exception e) {
                     leSaveErrors.add(e);
                     continue;
                 } finally {
-                    if (fos != null) {
+                    if (fous != null) {
                         try {
-                            fos.close();
+                            fous.close();
                         } catch (IOException e) {
                             leSaveErrors.add(e);
                         }

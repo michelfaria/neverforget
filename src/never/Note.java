@@ -1,6 +1,7 @@
 package never;
 
 public class Note {
+
     private String _strContents;
 
     public Note() {

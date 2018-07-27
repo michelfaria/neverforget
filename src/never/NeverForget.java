@@ -23,7 +23,7 @@ public final class NeverForget {
 
     // Program Version
     public static final String C_STR_VERSION = "0.0.0";
-    
+
     // Other constants
     public static final File C_F_SAVE_DIR = new File(System.getProperty("user.home") + "/My Notes");
 
@@ -41,11 +41,11 @@ public final class NeverForget {
     // Tray pop-up menu
     public static PopupMenu c_popmPopupMenu = null;
     public static TrayIcon c_tricTrayIcon = null;
-    
+
     // Main JFrame
     public static final JFrame c_frmMain = new JFrame("NeverForget");
 
-    public static void main(String[] args) {  
+    public static void main(String[] args) {
         // Check for graphical environment
         if (GraphicsEnvironment.isHeadless()) {
             System.err.println("Sorry, NeverForget needs a graphical environment to run. Exiting.");
@@ -134,7 +134,7 @@ public final class NeverForget {
         });
         return mi;
     }
-    
+
     public static MenuItem saveTrayMI() {
         final MenuItem mi = new MenuItem("Save");
         mi.addActionListener(new ActionListener() {
@@ -145,23 +145,33 @@ public final class NeverForget {
         });
         return mi;
     }
-    
+
     public static void save() {
-        NoteSaveStatus nssStatus = IO.saveAllNotes();
-        if (nssStatus.equals(NoteSaveStatus.FAIL_NO_SAVE_DIR)) {
-            c_tricTrayIcon.displayMessage("Save Fail", "Your notes could not be saved because an error occurred while creating the Notes folder", TrayIcon.MessageType.ERROR);
-        } else if (nssStatus.equals(NoteSaveStatus.FAIL_WRITE_ERROR)) {
-            c_tricTrayIcon.displayMessage("Save Fail", "Your notes could not be saved because an error occurred while writing them to disk.", TrayIcon.MessageType.ERROR);
-        } else {
-            assert nssStatus.equals(NoteSaveStatus.SUCCESS);
-            c_tricTrayIcon.displayMessage("Saved", "Your notes were saved.", TrayIcon.MessageType.INFO);
+        synchronized (IO.leSaveErrors) {
+            NoteSaveStatus nssStatus = IO.saveAllNotes();
+            if (nssStatus.equals(NoteSaveStatus.FAIL_NO_SAVE_DIR)) {
+                c_tricTrayIcon.displayMessage("Save Fail",
+                        "Your notes could not be saved because an error occurred while creating the Notes folder",
+                        TrayIcon.MessageType.ERROR);
+            } else if (nssStatus.equals(NoteSaveStatus.FAIL_WRITE_ERROR)) {
+                c_tricTrayIcon.displayMessage("Save Fail",
+                        "Your notes could not be saved because an error occurred while writing them to disk.",
+                        TrayIcon.MessageType.ERROR);
+                for (Exception e : IO.leSaveErrors) {
+                    e.printStackTrace();
+                }
+            } else {
+                assert nssStatus.equals(NoteSaveStatus.SUCCESS);
+                c_tricTrayIcon.displayMessage("Saved", "Your notes were saved.", TrayIcon.MessageType.INFO);
+            }
         }
     }
-    
+
     public static void exit() {
         System.out.println("NeverForget is now exiting. Thank you for using NeverForget!");
         System.exit(0);
     }
-    
-    private NeverForget() {}
+
+    private NeverForget() {
+    }
 }

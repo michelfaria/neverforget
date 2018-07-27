@@ -14,17 +14,19 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 public class NoteWindow {
-    
-    private static final int C_N_SIZE_VER = 200;
-    private static final int C_N_SIZE_HOR = 100;
+
+    public static final int C_I_SIZE_VER = 200;
+    public static final int C_I_SIZE_HOR = 300;
+    public static final int C_I_START_POS_X = 200;
+    public static final int C_I_START_POS_Y = 200;
 
     private UUID _uuidUUID;
-    
+
     private JDialog _dlgDialog;
     private Note _nNote = new Note();
     private JTextArea _txtaNote = new JTextArea(_nNote.getContents());
     private JScrollPane _scrpnlNote = new JScrollPane(_txtaNote);
-    
+
     private DocumentListener dlNoteUpdateListener = new DocumentListener() {
         @Override
         public void changedUpdate(DocumentEvent e) {
@@ -39,30 +41,31 @@ public class NoteWindow {
         public void removeUpdate(DocumentEvent e) {
             updateContents();
         }
-        
+
         void updateContents() {
             _nNote.setContents(_txtaNote.getText());
         }
     };
-    
+
     private NoteWindow(JDialog dialog) {
         this(UUID.randomUUID(), dialog);
     }
-    
+
     private NoteWindow(UUID uuidUUID, JDialog dlgDialog) {
         _uuidUUID = uuidUUID;
         _dlgDialog = dlgDialog;
     }
-    
+
     public void init() {
-        _dlgDialog.setSize(C_N_SIZE_HOR, C_N_SIZE_VER);
+        _dlgDialog.setSize(C_I_SIZE_HOR, C_I_SIZE_VER);
         _dlgDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         _txtaNote.setLineWrap(true);
         _dlgDialog.getContentPane().add(_scrpnlNote, null);
         _dlgDialog.setVisible(true);
         _txtaNote.getDocument().addDocumentListener(dlNoteUpdateListener);
+        _dlgDialog.setLocation(C_I_START_POS_X, C_I_START_POS_Y);
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -91,19 +94,35 @@ public class NoteWindow {
     public JDialog getDialog() {
         return _dlgDialog;
     }
-    
+
     public Note getNote() {
         return _nNote;
     }
-    
+
     public UUID getUUID() {
         return _uuidUUID;
     }
-    
+
+    public int getPosX() {
+        return _dlgDialog.getX();
+    }
+
+    public int getPosY() {
+        return _dlgDialog.getY();
+    }
+
+    public int getWidth() {
+        return _dlgDialog.getWidth();
+    }
+
+    public int getHeight() {
+        return _dlgDialog.getHeight();
+    }
+
     /*
      * NoteWindow Management
      */
-    
+
     public static final Set<NoteWindow> setnwinNoteWindows = new HashSet<NoteWindow>();
 
     public static NoteWindow newNote() {
