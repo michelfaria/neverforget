@@ -37,7 +37,7 @@ public final class IO {
     /**
      * Write errors saved temporarily to IO.leSaveErrors
      */
-    public static NoteSaveStatus saveAllNotes(final boolean bResave) {
+    public static NoteSaveStatus saveAllNotes() {
         if (NoteWindow.setnwinNoteWindows == null) {
             throw new IllegalStateException("Note set is null");
         }
