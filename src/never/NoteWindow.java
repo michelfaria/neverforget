@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
@@ -16,7 +17,7 @@ import javax.swing.event.DocumentListener;
 public class NoteWindow {
 
     public static final Set<NoteWindow> setnwinNoteWindows = new HashSet<NoteWindow>();
-    
+
     public static final int C_I_SIZE_VER = 200;
     public static final int C_I_SIZE_HOR = 300;
     public static final int C_I_START_POS_X = 200;
@@ -29,8 +30,33 @@ public class NoteWindow {
     private JTextArea _txtaNote = new JTextArea(_nNote.getContents());
     private JScrollPane _scrpnlNote = new JScrollPane(_txtaNote);
     private boolean _bContentsUnsaved = true;
+    
+    private WindowAdapter _waOnClose = new WindowAdapter() {
+        @Override
+        public void windowClosing(WindowEvent e) {
+            final int iOpt = JOptionPane.showConfirmDialog(e.getComponent(),
+                    "Are you sure you want to delete this note? It cannot be recovered.", "Delete Note?",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-    private DocumentListener dlNoteUpdateListener = new DocumentListener() {
+            if (iOpt == JOptionPane.YES_OPTION) {
+                final IO.DeleteStatus dsDelete = IO.delete(NoteWindow.this);
+
+                if (dsDelete.equals(IO.DeleteStatus.PATH_ERROR)) {
+                    JOptionPane.showMessageDialog(e.getComponent(), "Couldn't delete note due to canonical path fail.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                } else if (dsDelete.equals(IO.DeleteStatus.DELETE_FAILED)) {
+                    JOptionPane.showMessageDialog(e.getComponent(),
+                            "Failed to delete the note. It may not exist anymore. To solve this problem, try saving and try again.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    setnwinNoteWindows.remove(NoteWindow.this);
+                    e.getWindow().dispose();
+                }
+            }
+        }
+    };
+
+    private DocumentListener _dlNoteUpdateListener = new DocumentListener() {
         @Override
         public void changedUpdate(DocumentEvent e) {
         }
@@ -50,11 +76,11 @@ public class NoteWindow {
             _bContentsUnsaved = true;
         }
     };
-    
+
     public NoteWindow() {
         this(new JDialog(NeverForget.c_frmMain, ""));
     }
-    
+
     public NoteWindow(JDialog dialog) {
         this(UUID.randomUUID(), dialog);
     }
@@ -64,22 +90,16 @@ public class NoteWindow {
         _dlgDialog = dlgDialog;
         _dlgDialog.setLocation(C_I_START_POS_X, C_I_START_POS_Y);
     }
-    
+
     public void init() {
-        _dlgDialog.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                setnwinNoteWindows.remove(NoteWindow.this);
-            }
-        });
         setnwinNoteWindows.add(this);
-        
         _dlgDialog.setSize(C_I_SIZE_HOR, C_I_SIZE_VER);
-        _dlgDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        _dlgDialog.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         _txtaNote.setLineWrap(true);
         _dlgDialog.getContentPane().add(_scrpnlNote, null);
         _dlgDialog.setVisible(true);
-        _txtaNote.getDocument().addDocumentListener(dlNoteUpdateListener);
+        _txtaNote.getDocument().addDocumentListener(_dlNoteUpdateListener);
+        _dlgDialog.addWindowListener(_waOnClose);
     }
 
     @Override
@@ -118,7 +138,7 @@ public class NoteWindow {
     public UUID getUUID() {
         return _uuidUUID;
     }
-    
+
     public void setUUID(UUID uuidUUID) {
         _uuidUUID = uuidUUID;
     }
@@ -130,12 +150,12 @@ public class NoteWindow {
     public void setDlgDialogBounds(int iX, int iY, int iWidth, int iHeight) {
         _dlgDialog.setBounds(iX, iY, iWidth, iHeight);
     }
-    
+
     public void setnNoteContents(String strContent) {
         _nNote.setContents(strContent);
         _txtaNote.setText(strContent);
     }
-    
+
     public int getPosY() {
         return _dlgDialog.getY();
     }
@@ -155,6 +175,5 @@ public class NoteWindow {
     public void setContentsUnsaved(boolean bContentsUnsaved) {
         _bContentsUnsaved = bContentsUnsaved;
     }
-    
-    
+
 }

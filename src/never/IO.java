@@ -37,7 +37,7 @@ public final class IO {
     /**
      * Write errors saved temporarily to IO.leSaveErrors
      */
-    public static NoteSaveStatus saveAllNotes() {
+    public static NoteSaveStatus saveAllNotes(final boolean bResave) {
         if (NoteWindow.setnwinNoteWindows == null) {
             throw new IllegalStateException("Note set is null");
         }
@@ -52,9 +52,6 @@ public final class IO {
                 return NoteSaveStatus.FAIL_NO_SAVE_DIR;
             }
             for (final NoteWindow nw : NoteWindow.setnwinNoteWindows) {
-                if (!nw.isContentsUnsaved()) {
-                    continue;
-                }
                 FileOutputStream fous = null;
                 try {
                     final File fSaveFile = new File(
@@ -140,6 +137,20 @@ public final class IO {
             }
             return nwlList;
         }
+    }
+
+    public static enum DeleteStatus {
+        DELETE_FAILED, PATH_ERROR, SUCCESS
+    }
+    public static DeleteStatus delete(NoteWindow nwNote) {
+        File fNote;
+        try {
+            fNote = new File(NeverForget.C_F_SAVE_DIR.getCanonicalPath() + "/" + nwNote.getUUID());
+        } catch (IOException ex) {
+            return DeleteStatus.PATH_ERROR;
+        }
+        final boolean bDelete =  fNote.delete();
+        return bDelete ? DeleteStatus.SUCCESS : DeleteStatus.DELETE_FAILED;
     }
 
     public static byte[] readFile(File file) throws IOException {
