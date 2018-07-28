@@ -80,14 +80,14 @@ public final class NeverForget {
         // Create Pop-up menu components
         final MenuItem miNewNote = newNoteMI();
         final MenuItem miSave = saveTrayMI();
-        final MenuItem miLoad = loadTrayMI();
+        //final MenuItem miLoad = loadTrayMI();
         final MenuItem miAbout = aboutTrayMI();
         final MenuItem miExit = quitTrayMI();
 
         // Add components to Pop-up menu
         c_popmPopupMenu.add(miNewNote);
         c_popmPopupMenu.add(miSave);
-        c_popmPopupMenu.add(miLoad);
+        //c_popmPopupMenu.add(miLoad);
         c_popmPopupMenu.addSeparator();
         c_popmPopupMenu.add(miAbout);
         c_popmPopupMenu.add(miExit);
